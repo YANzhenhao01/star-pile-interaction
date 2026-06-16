@@ -15,7 +15,7 @@ This repository already includes a GitHub Pages deployment workflow:
 If GitHub Pages is enabled in the repository settings, the page is usually available at:
 
 ```text
-https://yanzhenhao01.github.io/-/
+https://yanzhenhao01.github.io/star-pile-interaction/
 ```
 
 ## Features
