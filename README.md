@@ -1,110 +1,110 @@
-# 星星堆积与指尖搅动交互
+# Star Pile and Fingertip Stirring Interaction
 
-这是一个基于 HTML5 Canvas 和 MediaPipe Hands 的静态交互网页。页面会调用摄像头识别手部关键点，用户通过拇指和食指的捏合动作生成星星，星星落入水面后会产生水花、下沉、碰撞并逐渐堆积。用户也可以用指尖移动来搅动星星，形成类似“在水里拨动星星”的互动效果。
+This is a static interactive web page built with HTML5 Canvas and MediaPipe Hands. The page uses the camera to detect hand landmarks: when the thumb and index finger pinch together, a star is created. Each star falls into the water, creates a splash, sinks, collides with other stars, and gradually forms a pile. Moving your fingertip near the stars stirs them, creating the feeling of gently moving stars around in water.
 
-项目目前不依赖构建工具，核心代码集中在 `index.html` 中，可直接作为静态网页运行或部署到 GitHub Pages。
+The project does not require a build tool. The main implementation lives in `index.html`, so it can be opened as a static page or deployed directly with GitHub Pages.
 
-## 在线部署
+## Live Deployment
 
-仓库内已配置 GitHub Pages 自动部署流程：
+This repository already includes a GitHub Pages deployment workflow:
 
-- workflow 文件：`.github/workflows/static.yml`
-- 触发方式：推送到 `main` 分支，或在 GitHub Actions 中手动触发
-- 部署内容：整个仓库的静态文件
+- Workflow file: `.github/workflows/static.yml`
+- Trigger: every push to the `main` branch, or a manual run from GitHub Actions
+- Deployment content: the full static repository
 
-如果 GitHub Pages 已在仓库设置中启用，页面通常会发布到：
+If GitHub Pages is enabled in the repository settings, the page is usually available at:
 
 ```text
 https://yanzhenhao01.github.io/-/
 ```
 
-## 功能特点
+## Features
 
-- 手势识别：使用 MediaPipe Hands 识别单手关键点。
-- 捏合生成星星：拇指指尖与食指指尖距离足够近时生成一颗星星。
-- 水面动画：Canvas 绘制动态波浪水面。
-- 物理效果：星星具有下落、旋转、入水、水花、阻尼、碰撞和堆积效果。
-- 指尖搅动：手指靠近水中的星星时，会推动星星移动。
-- 颜色设置：左上角设置按钮可切换星星颜色。
-- 鼠标备用操作：没有摄像头或手势识别不可用时，可通过鼠标点击生成星星、移动鼠标搅动星星。
+- Hand tracking: detects one hand with MediaPipe Hands.
+- Pinch-to-create interaction: creates a star when the thumb tip and index fingertip are close enough.
+- Animated water surface: draws a soft moving wave with Canvas.
+- Lightweight physics: stars fall, rotate, splash, slow down in water, collide, and pile up.
+- Fingertip stirring: nearby stars are pushed by fingertip movement.
+- Color picker: the settings button in the top-left corner switches the star color.
+- Mouse fallback: when camera interaction is unavailable, clicking creates stars and mouse movement stirs nearby stars.
 
-## 使用方式
+## How to Use
 
-1. 打开网页后，允许浏览器访问摄像头。
-2. 等待页面加载 AI 手势识别环境。
-3. 将手放到摄像头前。
-4. 用拇指和食指做捏合动作生成星星。
-5. 移动食指搅动水中的星星。
-6. 点击左上角设置按钮，可切换星星颜色。
+1. Open the page and allow camera access.
+2. Wait for the AI hand-tracking environment to load.
+3. Place your hand in front of the camera.
+4. Pinch your thumb and index finger together to create a star.
+5. Move your index finger to stir stars in the water.
+6. Use the settings button in the top-left corner to change the star color.
 
-也可以直接使用鼠标：
+Mouse controls are also supported:
 
-- 点击画布：生成一颗星星。
-- 移动鼠标：推动附近的星星。
+- Click the canvas to create a star.
+- Move the mouse to push nearby stars.
 
-## 本地运行
+## Local Development
 
-由于摄像头能力通常需要安全上下文，推荐使用本地 HTTP 服务打开页面，而不是直接双击 HTML 文件。
+Camera access usually requires a secure context, so it is better to serve the page through a local HTTP server instead of opening the HTML file directly.
 
-使用 Python：
+Using Python:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-然后访问：
+Then open:
 
 ```text
 http://localhost:8000
 ```
 
-## 项目结构
+## Project Structure
 
 ```text
 .
 ├── .github/
 │   └── workflows/
-│       └── static.yml      # GitHub Pages 自动部署配置
-├── index.html              # 页面结构、样式、交互逻辑和 Canvas 动画
-└── README.md               # 项目说明文档
+│       └── static.yml      # GitHub Pages deployment workflow
+├── index.html              # Page markup, styles, interaction logic, and Canvas animation
+└── README.md               # Project documentation
 ```
 
-## 技术实现解读
+## Technical Overview
 
-页面主要由以下部分组成：
+The page is mainly composed of:
 
-- `MediaPipe Hands`：通过 CDN 加载，用于识别手部关键点。
-- `Camera Utils`：由 MediaPipe 提供，用于连接摄像头并持续向识别模型送入视频帧。
-- `Canvas 2D`：负责绘制星星、水面、水花粒子和动画效果。
-- 粒子与简化物理系统：通过速度、重力、阻尼、碰撞检测和状态切换模拟星星落水后的运动。
+- `MediaPipe Hands`: loaded from a CDN to detect hand landmarks.
+- `Camera Utils`: provided by MediaPipe to connect the camera and feed frames into the hand-tracking model.
+- `Canvas 2D`: used to draw stars, the water surface, splash particles, and the animation loop.
+- A simplified particle and physics system: velocity, gravity, damping, collision checks, and state changes simulate the stars moving through water.
 
-核心状态包括：
+Important runtime state includes:
 
-- `stars`：保存星星的位置、速度、大小、颜色、旋转角度和运动状态。
-- `splashes`：保存入水时产生的水花粒子。
-- `lastFingerPos`：记录当前指尖位置。
-- `fingerVel`：记录指尖移动速度，用于推动星星。
-- `currentStarConfig`：记录当前选择的星星颜色。
+- `stars`: stores each star's position, velocity, size, color, rotation, and motion state.
+- `splashes`: stores splash particles created when a star hits the water.
+- `lastFingerPos`: tracks the current fingertip position.
+- `fingerVel`: tracks fingertip velocity, which is used to push stars.
+- `currentStarConfig`: stores the currently selected star color.
 
-星星的生命周期大致如下：
+Each star follows this general lifecycle:
 
-1. 用户捏合手指或点击画布生成星星。
-2. 星星以 `falling` 状态下落，并带有随机速度和旋转。
-3. 星星触碰水面后切换为 `sinking` 状态，同时产生水花。
-4. 星星在水中受到阻尼、微弱浮动、指尖推动和其他星星碰撞影响。
-5. 星星沉到底部后进入 `settled` 状态，逐渐形成堆积效果。
+1. A star is created by a pinch gesture or a mouse click.
+2. The star starts in the `falling` state with randomized velocity and rotation.
+3. When it reaches the water surface, it switches to the `sinking` state and creates splash particles.
+4. While in the water, it is affected by damping, subtle drift, fingertip pushes, and collisions with other stars.
+5. After reaching the bottom, it enters the `settled` state and contributes to the growing pile.
 
-## 浏览器要求
+## Browser Requirements
 
-- 推荐使用最新版 Chrome、Edge 或 Safari。
-- 使用摄像头交互时，需要浏览器授权摄像头权限。
-- 在线访问时需要 HTTPS；本地开发时 `localhost` 通常也可以使用摄像头权限。
-- 页面依赖 jsDelivr CDN 加载 MediaPipe 脚本，因此需要网络连接。
+- Latest Chrome, Edge, or Safari is recommended.
+- Camera interaction requires browser camera permission.
+- Online access should use HTTPS; local development on `localhost` usually works for camera permissions.
+- The page loads MediaPipe scripts from the jsDelivr CDN, so an internet connection is required.
 
-## 可改进方向
+## Possible Improvements
 
-- 增加移动端触摸交互。
-- 增加清空画布、暂停动画等控制项。
-- 将 CSS 和 JavaScript 拆分为独立文件，便于维护。
-- 增加更多星星形状、颜色主题和音效。
-- 优化大量星星时的碰撞性能。
+- Add mobile touch interactions.
+- Add controls for clearing the canvas or pausing the animation.
+- Split CSS and JavaScript into separate files for easier maintenance.
+- Add more star shapes, color themes, and sound effects.
+- Optimize collision performance when many stars are on screen.
